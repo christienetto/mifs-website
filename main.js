@@ -5,32 +5,33 @@
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* ---------- Songs ---------- */
 
-  const TINTS = {
-    "send-me-the-chorus": "#c8457f",
-    "neon-harbor": "#7a2f8f",
-    "paper-satellites": "#2b3c73",
-  };
+  // Audio and artwork come from Apple's iTunes catalog (30-second previews, streamed from Apple);
+  // synced lyrics come from LRCLIB. Both are fetched by the browser, like the app does.
   const SONGS = {};
+  const SONG_ORDER = [];
   for (const s of window.MIFS_SONGS || []) {
     SONGS[s.id] = {
       ...s,
-      art: `assets/art/${s.id}.webp`,
-      thumb: `assets/art/${s.id}-thumb.webp`,
-      audio: `assets/audio/${s.id}.m4a`,
-      tint: TINTS[s.id] || "#5a3fcf",
+      title: s.title.replace(/\s*\(.*\)\s*$/, ""),
+      thumb: s.art.replace(/\/\d+x\d+bb\./, "/120x120bb."),
+      spotify: `https://open.spotify.com/search/${encodeURIComponent(`${s.title.replace(/\s*\(.*\)\s*$/, "")} ${s.artist}`)}`,
+      lyrics: [],
     };
+    SONG_ORDER.push(s.id);
   }
-  const SONG_ORDER = ["send-me-the-chorus", "neon-harbor", "paper-satellites"];
 
   /** "0:07", "3:42". */
   const clock = (sec) => {
     const t = Math.max(0, Math.floor(sec + 1e-6));
     return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`;
   };
+  /** A preview time as a time in the full song. */
+  const songClock = (song, t) => clock(song.offset + t);
 
   /** The mean level in each of `n` equal buckets of [from, to), stretched to fill the height. */
   function bucket(levels, from, to, n) {
@@ -50,6 +51,63 @@
     return out.map((v) => clamp(0.16 + (0.84 * (v - lo)) / Math.max(0.001, hi - lo), 0.16, 1));
   }
 
+  /** Same rule as the app: a line counts once half a second (or half the line) is inside. */
+  const heard = (l, from, to) => {
+    const overlap = Math.min(to, l.e) - Math.max(from, l.s);
+    return overlap > 0 && overlap >= Math.min(0.5, (l.e - l.s) / 2);
+  };
+
+  // Artwork straight from Apple.
+  $$("img[data-art]").forEach((img) => {
+    const s = SONGS[img.dataset.art];
+    if (s) img.src = img.closest(".backdrop") ? s.art : s.thumb;
+  });
+
+  // Refresh preview URLs from the live catalog, in case Apple has moved them.
+  fetch(`https://itunes.apple.com/lookup?id=${SONG_ORDER.map((id) => SONGS[id].trackId).join(",")}&country=us`)
+    .then((r) => (r.ok ? r.json() : null))
+    .then((body) => {
+      for (const item of (body && body.results) || []) {
+        const s = Object.values(SONGS).find((x) => x.trackId === item.trackId);
+        if (s && item.previewUrl) s.preview = item.previewUrl;
+      }
+    })
+    .catch(() => {});
+
+  /** LRC lines → lines in preview time, ending where the next line starts. */
+  function previewLines(song, lrc) {
+    const lines = [];
+    for (const raw of lrc.split("\n")) {
+      const m = raw.match(/^\[(\d+):(\d+(?:\.\d+)?)\]\s*(.*)$/);
+      if (m) lines.push({ t: +m[1] * 60 + +m[2], text: m[3].trim() });
+    }
+    const out = [];
+    lines.forEach((l, i) => {
+      if (!l.text) return;
+      const next = lines[i + 1];
+      const s = l.t - song.offset;
+      const e = Math.min((next ? next.t : l.t + 4) - song.offset, song.duration);
+      if (e - Math.max(0, s) < 0.8 || s >= song.duration) return;
+      let text = l.text;
+      for (const [from, to] of song.fixes || []) text = text.replace(from, to);
+      text = text.replace(/\s*\([^)]*\)/g, "").trim() || l.text;
+      out.push({ s: Math.max(0, s), e, t: text });
+    });
+    return out;
+  }
+
+  const lyricsLoaded = {};
+  function loadLyrics(song) {
+    if (!lyricsLoaded[song.id]) {
+      lyricsLoaded[song.id] = fetch(`https://lrclib.net/api/get/${song.lrclib}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((body) => { song.lyrics = body && body.syncedLyrics ? previewLines(song, body.syncedLyrics) : []; })
+        .catch(() => { song.lyrics = []; })
+        .then(() => { song.lyricsDone = true; return song; });
+    }
+    return lyricsLoaded[song.id];
+  }
+
   /* ---------- Player: one snippet at a time ---------- */
 
   const Player = (() => {
@@ -57,10 +115,12 @@
     let cur = null;
 
     function audioFor(id) {
-      if (!audios[id]) {
+      const src = SONGS[id].preview;
+      if (!audios[id] || (audios[id].dataset.src !== src && !audios[id].dataset.local)) {
         const a = new Audio();
         a.preload = "auto";
-        a.src = SONGS[id].audio;
+        a.src = src;
+        a.dataset.src = src;
         audios[id] = a;
       }
       return audios[id];
@@ -78,7 +138,7 @@
           // The host can't serve byte ranges, so seeking fails. Load the whole file locally instead.
           a.pause();
           a.dataset.local = "1";
-          fetch(SONGS[songId].audio)
+          fetch(a.dataset.src)
             .then((res) => res.blob())
             .then((blob) => {
               a.src = URL.createObjectURL(blob);
@@ -158,12 +218,12 @@
   function buildMif(el) {
     const song = SONGS[el.dataset.song];
     if (!song) return;
-    const start = parseFloat(el.dataset.start);
-    const length = parseFloat(el.dataset.length);
+    const start = el.dataset.start != null ? parseFloat(el.dataset.start) : song.start;
+    const length = el.dataset.length != null ? parseFloat(el.dataset.length) : 10;
     el.innerHTML =
       cardHTML(song, start, length) +
-      `<span class="mif-caption"><span class="mif-title">${song.title}</span>` +
-      `<span class="mif-sub"><span>${song.artist}</span><span>▶︎ ${clock(length)}</span></span></span>`;
+      `<span class="mif-caption"><span class="mif-title">${esc(song.title)}</span>` +
+      `<span class="mif-sub"><span>${esc(song.artist)}</span><span>▶︎ ${clock(length)}</span></span></span>`;
     if (el.tagName !== "BUTTON") return;
 
     el.setAttribute("aria-label", `Play ${song.title} by ${song.artist}, ${Math.round(length)} second snippet`);
@@ -188,14 +248,33 @@
   }
 
   $$(".mif[data-song]").forEach(buildMif);
-  $$("[data-card]").forEach((el) => {
-    const song = SONGS[el.dataset.card];
-    if (song) el.innerHTML = cardHTML(song, song.highlight, 10);
-  });
   $$("[data-mini]").forEach((el) => {
     const song = SONGS[el.dataset.mini];
-    if (song) el.innerHTML = cardHTML(song, song.highlight, 10);
+    if (song) el.innerHTML = cardHTML(song, song.start, 10);
   });
+
+  /* ---------- Static lyric lists (the phone editor, the lyrics tile) ---------- */
+
+  function fillLyricList(ul) {
+    const song = SONGS[ul.dataset.lyrics];
+    if (!song) return;
+    loadLyrics(song).then(() => {
+      if (!song.lyrics.length) return;
+      const start = +ul.dataset.start, end = start + +ul.dataset.length;
+      const count = +ul.dataset.count || 5;
+      let first = song.lyrics.findIndex((l) => heard(l, start, end));
+      first = clamp(first < 0 ? 0 : first - (count > 4 ? 1 : 0), 0, Math.max(0, song.lyrics.length - count));
+      let sungDone = false;
+      ul.innerHTML = song.lyrics.slice(first, first + count).map((l) => {
+        const lit = heard(l, start, end);
+        const sung = lit && !sungDone;
+        if (sung) sungDone = true;
+        return `<li class="${lit ? "lit" : ""}${sung ? " sung" : ""}">${esc(l.t)}</li>`;
+      }).join("");
+      ul.dispatchEvent(new Event("filled"));
+    });
+  }
+  $$("[data-lyrics]").forEach(fillLyricList);
 
   /* ---------- Canvas helpers ---------- */
 
@@ -222,7 +301,7 @@
     const f = fit(canvas);
     if (!f) return 0;
     const { ctx, w, h } = f;
-    const lane = song.lyrics.length ? Math.max(8, Math.round(h * 0.11)) : 0;
+    const lane = Math.max(8, Math.round(h * 0.11));
     const waveH = h - lane - 6;
     const mid = 3 + waveH / 2;
     const pps = w / visible;
@@ -246,15 +325,13 @@
       ctx.fill();
     }
 
-    if (lane) {
-      const y = h - lane / 2 - 1.5;
-      for (const l of song.lyrics) {
-        const xs = x0 + l.s * pps, xe = x0 + l.e * pps;
-        if (xe < 0 || xs > w) continue;
-        ctx.fillStyle = l.s < end && l.e > start ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.22)";
-        rr(ctx, xs + 1, y, Math.max(3, xe - xs - 2), 3, 1.5);
-        ctx.fill();
-      }
+    const y = h - lane / 2 - 1.5;
+    for (const l of song.lyrics) {
+      const xs = x0 + l.s * pps, xe = x0 + l.e * pps;
+      if (xe < 0 || xs > w) continue;
+      ctx.fillStyle = heard(l, start, end) ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.22)";
+      rr(ctx, xs + 1, y, Math.max(3, xe - xs - 2), 3, 1.5);
+      ctx.fill();
     }
 
     ctx.lineWidth = 2.5;
@@ -273,7 +350,7 @@
     return pps;
   }
 
-  /** A whole song as gradient bars, with the highlight window marked. */
+  /** A whole preview as gradient bars, with the default snippet marked. */
   function drawFullWave(canvas, song) {
     const f = fit(canvas);
     if (!f) return;
@@ -286,7 +363,7 @@
     g.addColorStop(0.75, "#ff4f99");
     g.addColorStop(1, "#ff8a5c");
     const bw = 3;
-    const hs = song.highlight / song.duration, he = (song.highlight + 10) / song.duration;
+    const hs = song.start / song.duration, he = (song.start + 10) / song.duration;
     for (let i = 0; i < n; i++) {
       const x = i * (w / n);
       const bh = Math.max(bw, bars[i] * h * 0.86);
@@ -342,7 +419,7 @@
       if (e.isIntersecting) { e.target.classList.add("in-view"); revealer.unobserve(e.target); }
     }
   }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
-  $$(".reveal").forEach((el) => revealer.observe(el));
+  const observeReveals = () => $$(".reveal:not(.in-view)").forEach((el) => revealer.observe(el));
 
   requestAnimationFrame(() => { const t = $("#hero-thread"); if (t) t.classList.add("go"); });
 
@@ -388,6 +465,10 @@
       scr.appendChild(clone);
       phone.appendChild(scr);
       slot.appendChild(phone);
+      // Lyrics arrive later; keep the copy in step with the original.
+      $$("[data-lyrics]", screen).forEach((ul, i) => {
+        ul.addEventListener("filled", () => { const twin = $$("[data-lyrics]", clone)[i]; if (twin) twin.innerHTML = ul.innerHTML; });
+      });
     });
     $$(".how-slot .mif[data-song]").forEach(buildMif);
 
@@ -411,6 +492,8 @@
     backdrop: $("#demo-backdrop"),
     title: $("#demo-title"),
     artist: $("#demo-artist"),
+    apple: $("#demo-apple"),
+    spotify: $("#demo-spotify"),
     lyrics: $("#demo-lyrics"),
     from: $("#demo-from"),
     to: $("#demo-to"),
@@ -422,13 +505,14 @@
     play: $("#demo-play"),
     ring: $("#demo-play .ring circle"),
     send: $("#demo-send"),
+    sendLabel: $("#demo-send-label"),
     thread: $("#demo-thread"),
   };
   const state = { song: null, start: 0, length: 10, playhead: null, pps: 30, raf: 0, lit: "" };
   const REPLIES = {
-    "send-me-the-chorus": ["THE DROP 😭", "ok this is my whole personality now", "sending this to everyone I know"],
-    "neon-harbor": ["this sounds like driving at 2am", "the synths!! 🌆", "neon harbor supremacy"],
-    "paper-satellites": ["this is so cozy", "lo-fi and rain, perfect", "on repeat all night"],
+    kanye: ["the Cosbys line 😂", "ok Kanye 😭", "can't tell you nothing apparently"],
+    celine: ["NEAR, FAR 😭", "I'm on the bow of the ship rn", "every time. every single time"],
+    queen: ["MAMAAA 🎭", "the whole car is singing now", "Galileo next please"],
   };
   let replyTurn = 0;
 
@@ -443,26 +527,35 @@
     });
   }
 
+  function renderLyrics() {
+    const s = state.song;
+    state.lit = "";
+    D.lyrics.innerHTML = s.lyrics.length
+      ? s.lyrics.map((l, i) => `<li><button type="button" data-i="${i}">${esc(l.t)}</button></li>`).join("")
+      : `<li class="demo-lyrics-empty">${s.lyricsDone ? "Lyrics aren’t available right now." : "Loading lyrics…"}</li>`;
+    D.lyrics.scrollTop = 0;
+  }
+
   function paint() {
     const s = state.song;
     const end = state.start + state.length;
     state.pps = drawScrubber(D.canvas, s, state.start, state.length, state.playhead, visibleSeconds()) || state.pps;
-    D.from.textContent = clock(state.start);
-    D.to.textContent = clock(end);
+    D.from.textContent = songClock(s, state.start);
+    D.to.textContent = songClock(s, end);
     D.overview.style.left = `${(state.start / s.duration) * 100}%`;
     D.overview.style.width = `${(state.length / s.duration) * 100}%`;
     D.scrub.setAttribute("aria-valuenow", String(Math.round(state.start)));
     D.scrub.setAttribute("aria-valuemax", String(Math.round(maxStart())));
-    D.scrub.setAttribute("aria-valuetext", `${clock(state.start)} to ${clock(end)}`);
+    D.scrub.setAttribute("aria-valuetext", `${songClock(s, state.start)} to ${songClock(s, end)}`);
 
+    if (!s.lyrics.length) return;
     const items = $$("li", D.lyrics);
     let firstLit = -1;
     const lit = [];
     s.lyrics.forEach((l, i) => {
-      // Same rule as the app: a line counts once half a second (or half the line) is inside.
-      const overlap = Math.min(end, l.e) - Math.max(state.start, l.s);
-      const on = overlap > 0 && overlap >= Math.min(0.5, (l.e - l.s) / 2);
+      const on = heard(l, state.start, end);
       const sung = state.playhead != null && state.playhead >= l.s && state.playhead < l.e;
+      if (!items[i]) return;
       items[i].classList.toggle("lit", on);
       items[i].classList.toggle("sung", sung);
       if (on) { lit.push(i); if (firstLit < 0) firstLit = i; }
@@ -527,23 +620,24 @@
     stopPreview();
     const s = SONGS[id];
     state.song = s;
-    state.lit = "";
     $$("button", D.songs).forEach((b) => b.setAttribute("aria-checked", String(b.dataset.id === id)));
     D.art.src = s.art;
-    D.art.alt = `${s.title} artwork`;
+    D.art.alt = `${s.album} artwork`;
     D.backdrop.style.opacity = "0";
     setTimeout(() => { D.backdrop.src = s.art; D.backdrop.style.opacity = "1"; }, reduceMotion ? 0 : 200);
     D.title.textContent = s.title;
     D.artist.textContent = s.artist;
-    D.lyrics.innerHTML = s.lyrics.map((l, i) => `<li><button type="button" data-i="${i}">${l.t}</button></li>`).join("");
-    D.lyrics.scrollTop = 0;
-    state.start = clamp(s.highlight, 0, maxStart());
+    D.apple.href = s.appleMusic;
+    D.spotify.href = s.spotify;
+    state.start = clamp(s.start, 0, maxStart());
+    loadLyrics(s).then(() => { if (state.song === s) { renderLyrics(); render(); } });
+    renderLyrics();
     render();
   }
 
-  if (D) {
-    D.songs.innerHTML = SONG_ORDER.filter((id) => SONGS[id]).map((id) =>
-      `<button class="song-chip" type="button" role="radio" data-id="${id}" aria-checked="false"><img src="${SONGS[id].thumb}" alt="">${SONGS[id].title}</button>`
+  if (D && SONG_ORDER.length) {
+    D.songs.innerHTML = SONG_ORDER.map((id) =>
+      `<button class="song-chip" type="button" role="radio" data-id="${id}" aria-checked="false"><img src="${SONGS[id].thumb}" alt="">${esc(SONGS[id].title)}</button>`
     ).join("");
     D.songs.addEventListener("click", (e) => {
       const b = e.target.closest("button[data-id]");
@@ -642,9 +736,8 @@
       D.thread.appendChild(delivered);
 
       D.send.disabled = true;
-      const label = D.send.lastChild;
-      label.textContent = " Sent";
-      setTimeout(() => { D.send.disabled = false; label.textContent = " Send"; }, 1400);
+      D.sendLabel.textContent = "Sent";
+      setTimeout(() => { D.send.disabled = false; D.sendLabel.textContent = "Send"; }, 1400);
 
       const typing = document.createElement("div");
       typing.className = "typing demo-thread-in";
@@ -664,24 +757,55 @@
     setSong(SONG_ORDER[0]);
   }
 
+  /* ---------- Now playing: album covers ---------- */
+
+  const albums = $("#albums");
+  if (albums) {
+    albums.innerHTML = SONG_ORDER.map((id) => {
+      const s = SONGS[id];
+      return (
+        `<button class="album reveal" type="button" data-song="${id}" aria-label="Play ${esc(s.title)} by ${esc(s.artist)}">` +
+        `<span class="album-art"><img src="${s.art}" alt="" loading="lazy"><span class="album-play" aria-hidden="true"></span><span class="album-bar"><i></i></span></span>` +
+        `<span class="album-meta"><b>${esc(s.title)}</b><em>${esc(s.artist)}</em><small>${esc(s.album)} · ${esc(s.year)}</small></span>` +
+        `</button>`
+      );
+    }).join("");
+    $$(".album", albums).forEach((btn) => {
+      const key = nextKey("album");
+      const bar = $(".album-bar i", btn);
+      const s = SONGS[btn.dataset.song];
+      btn.addEventListener("click", () => {
+        Player.toggle({
+          key, songId: s.id, start: s.start, length: 10,
+          onState(st) { btn.classList.toggle("playing", st !== "idle"); btn.setAttribute("aria-pressed", String(st !== "idle")); },
+          onTick(p) { bar.style.width = `${p * 100}%`; },
+        });
+      });
+    });
+  }
+  observeReveals();
+
   /* ---------- Bento: lyric roll ---------- */
 
   const roll = $(".lyric-roll");
   if (roll && !reduceMotion) {
-    const lit = $$("li.lit", roll);
-    let i = 1, timer = 0;
-    const io = new IntersectionObserver(([e]) => {
+    let timer = 0, visible = false;
+    const run = () => {
       clearInterval(timer);
-      if (e.isIntersecting) timer = setInterval(() => {
+      const lit = $$("li.lit", roll);
+      if (!visible || lit.length < 2) return;
+      let i = Math.max(0, lit.findIndex((l) => l.classList.contains("sung")));
+      timer = setInterval(() => {
         lit.forEach((l) => l.classList.remove("sung"));
         i = (i + 1) % lit.length;
         lit[i].classList.add("sung");
       }, 1700);
-    });
-    io.observe(roll);
+    };
+    roll.addEventListener("filled", run);
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; run(); }).observe(roll);
   }
 
-  /* ---------- Songs on demand ---------- */
+  /* ---------- Every song ---------- */
 
   const dCard = $("#demand-card");
   if (dCard) {
@@ -705,36 +829,6 @@
     }
   }
 
-  /* ---------- Telegram button ---------- */
-
-  $$(".tg-btn[data-song]").forEach((btn) => {
-    const key = nextKey("tg");
-    const label = $(".tg-btn-label", btn);
-    btn.addEventListener("click", () => {
-      Player.toggle({
-        key, songId: btn.dataset.song, start: +btn.dataset.start, length: +btn.dataset.length,
-        onState(s) { label.textContent = s === "idle" ? "▶︎ Play Snippet" : s === "loading" ? "Loading…" : "■ Stop"; },
-        onTick(p) { btn.style.setProperty("--progress", `${p * 100}%`); },
-      });
-    });
-  });
-
-  /* ---------- House band ---------- */
-
-  $$(".album[data-song]").forEach((btn) => {
-    const key = nextKey("album");
-    const bar = $(".album-bar i", btn);
-    const s = SONGS[btn.dataset.song];
-    if (s) btn.setAttribute("aria-label", `Play the chorus of ${s.title} by ${s.artist}`);
-    btn.addEventListener("click", () => {
-      Player.toggle({
-        key, songId: btn.dataset.song, start: +btn.dataset.start, length: +btn.dataset.length,
-        onState(st) { btn.classList.toggle("playing", st !== "idle"); btn.setAttribute("aria-pressed", String(st !== "idle")); },
-        onTick(p) { bar.style.width = `${p * 100}%`; },
-      });
-    });
-  });
-
   /* ---------- Frame loop hooks ---------- */
 
   let ticking = false;
@@ -747,16 +841,17 @@
   let resizeT = 0;
   window.addEventListener("resize", () => {
     clearTimeout(resizeT);
-    resizeT = setTimeout(() => { staticWaves(); if (D) paint(); updateStatement(); }, 120);
+    resizeT = setTimeout(() => { staticWaves(); if (D && state.song) paint(); updateStatement(); }, 120);
   });
 
-  // Canvases inside hidden containers draw when they appear.
+  // Canvases inside hidden containers draw when they appear; lyric lanes draw once lyrics arrive.
   const waveIO = new IntersectionObserver((entries) => {
     if (entries.some((e) => e.isIntersecting)) staticWaves();
   });
   $$(".ed-wave, .full-wave").forEach((c) => waveIO.observe(c));
+  Promise.all(Object.values(SONGS).map(loadLyrics)).then(staticWaves);
 
   const whenFonts = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
-  whenFonts.then(() => { staticWaves(); if (D) paint(); updateStatement(); });
+  whenFonts.then(() => { staticWaves(); if (D && state.song) paint(); updateStatement(); });
   updateStatement();
 })();

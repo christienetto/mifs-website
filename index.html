@@ -3,16 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>MIFS — Send the good part.</title>
-  <meta name="description" content="MIFS sends the best few seconds of a song through iMessage and Telegram. Pick a song, tap a lyric, send the moment.">
+  <title>MIFS — Share the feeling.</title>
+  <meta name="description" content="MIFS sends the best few seconds of a song as a bubble that plays right in the chat. Quote your favourite artists.">
   <meta name="theme-color" content="#000000">
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="MIFS — Send the good part.">
-  <meta property="og:description" content="The best few seconds of any song, sent as a bubble that plays right in the chat.">
+  <meta property="og:title" content="MIFS — Share the feeling.">
+  <meta property="og:description" content="Quote your favourite artists. The best few seconds of any song, sent as a bubble that plays right in the chat.">
   <meta property="og:image" content="https://christienetto.github.io/mifs-website/assets/og.png">
   <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://itunes.apple.com">
+  <link rel="preconnect" href="https://is1-ssl.mzstatic.com">
+  <link rel="preconnect" href="https://lrclib.net">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
@@ -29,16 +32,15 @@
     </a>
     <div class="nav-links" id="nav-links">
       <a href="#how">How it works</a>
-      <a href="#try">Try it</a>
       <a href="#features">Features</a>
-      <a href="#telegram">Telegram</a>
+      <a href="#updates">Updates</a>
       <a href="#specs">Specs</a>
     </div>
     <div class="nav-actions">
       <button class="nav-menu" id="nav-menu" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Menu">
         <svg viewBox="0 0 18 18" width="18" height="18" aria-hidden="true"><path d="M3 7l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
-      <a class="pill pill-sm" href="https://t.me/MIFSAppBot" target="_blank" rel="noopener">Get</a>
+      <a class="pill pill-sm" href="#try">Try it</a>
     </div>
   </div>
 </nav>
@@ -49,14 +51,17 @@
 <section class="hero">
   <div class="hero-glow" aria-hidden="true"></div>
   <div class="container hero-copy">
-    <p class="hero-eyebrow reveal-hero" style="--d:0">
+    <a class="news-chip reveal-hero" style="--d:0" href="#updates">
+      <span class="news-tag">New</span> Try MIFS right here in your browser
+    </a>
+    <p class="hero-eyebrow reveal-hero" style="--d:0.5">
       <img src="assets/icon-512.png" alt="" width="34" height="34"> MIFS
     </p>
-    <h1 class="display reveal-hero" style="--d:1">Send the<br><span class="grad">good part.</span></h1>
-    <p class="hero-sub reveal-hero" style="--d:2">The best few seconds of any song.<br class="br-sm"> Right in the chat.</p>
+    <h1 class="display reveal-hero" style="--d:1">Share the<br><span class="grad">feeling.</span></h1>
+    <p class="hero-sub reveal-hero" style="--d:2">Quote your favourite artists.</p>
     <div class="hero-ctas reveal-hero" style="--d:3">
-      <a class="pill" href="https://t.me/MIFSAppBot" target="_blank" rel="noopener">Try it in Telegram</a>
-      <a class="link-arrow" href="#try">Play with the editor</a>
+      <a class="pill" href="#try">Try it now</a>
+      <a class="link-arrow" href="#how">See how it works</a>
     </div>
   </div>
 
@@ -73,13 +78,13 @@
           </header>
           <div class="thread" id="hero-thread">
             <p class="stamp">Today 9:38</p>
-            <div class="bubble in pop" style="--p:0">ok what was that song in the car</div>
-            <div class="bubble in pop" style="--p:1">the part that goes like da da DAA</div>
+            <div class="bubble in pop" style="--p:0">you always quote that one Kanye line</div>
+            <div class="bubble in pop" style="--p:1">which one is it again</div>
             <div class="out-wrap pop" style="--p:2">
-              <button class="mif" type="button" data-song="send-me-the-chorus" data-start="32.24" data-length="10"></button>
+              <button class="mif" type="button" data-song="kanye"></button>
             </div>
             <p class="delivered pop" style="--p:3">Delivered</p>
-            <div class="bubble in pop" style="--p:4">THAT PART. on repeat 🔁</div>
+            <div class="bubble in pop" style="--p:4">the Cosbys line 😂 every single time</div>
           </div>
           <footer class="compose" aria-hidden="true">
             <span class="compose-plus">+</span>
@@ -112,7 +117,7 @@
         <article class="how-step" data-screen="0">
           <span class="step-num">1</span>
           <h3>Pick a song.</h3>
-          <p class="copy"><strong>Search by title, artist, or even a line you remember.</strong> Type “send me the” and MIFS finds the song by its lyrics. Full songs come from the MIFS Library, with Apple Music charts and your own audio right beside them.</p>
+          <p class="copy"><strong>Search by title or artist across Spotify and Apple Music.</strong> Every song arrives with its artwork, and with synced lyrics whenever they exist.</p>
           <div class="how-slot" aria-hidden="true"></div>
         </article>
         <article class="how-step" data-screen="1">
@@ -139,24 +144,23 @@
               <div class="statusbar"><span>9:41</span><span class="sb-icons"><i></i><i></i><i></i></span></div>
               <div class="disc">
                 <h4 class="disc-title">MIFS</h4>
-                <div class="disc-search"><svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="typed" data-type="send me the">send me the</span><i class="caret"></i></div>
-                <p class="disc-section">Full Songs</p>
+                <div class="disc-search"><svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>can't tell me</span><i class="caret"></i></div>
+                <p class="disc-section">Songs</p>
                 <ul class="disc-list">
                   <li class="hit">
-                    <img src="assets/art/send-me-the-chorus-thumb.webp" alt="">
-                    <span><b>Send Me the Chorus</b><em>Orchid Relay · MIFS</em><q>Send me the chorus, just the good part</q></span>
+                    <img data-art="kanye" alt="">
+                    <span><b>Can't Tell Me Nothing</b><em>Kanye West · Apple Music</em></span>
                   </li>
                   <li>
-                    <img src="assets/art/neon-harbor-thumb.webp" alt="">
-                    <span><b>Neon Harbor</b><em>Orchid Relay · MIFS</em></span>
+                    <img data-art="celine" alt="">
+                    <span><b>My Heart Will Go On</b><em>Céline Dion · Spotify</em></span>
                   </li>
                   <li>
-                    <img src="assets/art/paper-satellites-thumb.webp" alt="">
-                    <span><b>Paper Satellites</b><em>Juniper Fold · Deezer</em></span>
-                    <span class="add">+</span>
+                    <img data-art="queen" alt="">
+                    <span><b>Bohemian Rhapsody</b><em>Queen · Apple Music</em></span>
                   </li>
                 </ul>
-                <p class="disc-section">Apple Music</p>
+                <p class="disc-section">Top Songs</p>
                 <ul class="disc-list ghost">
                   <li><span class="ph"></span><span><b class="phl"></b><em class="phl s"></em></span></li>
                   <li><span class="ph"></span><span><b class="phl"></b><em class="phl s"></em></span></li>
@@ -167,20 +171,16 @@
 
             <!-- Screen 2: Editor -->
             <div class="screen screen-editor" data-screen="1">
-              <div class="backdrop"><img src="assets/art/send-me-the-chorus.webp" alt=""></div>
+              <div class="backdrop"><img data-art="kanye" alt=""></div>
               <div class="statusbar"><span>9:41</span><span class="sb-icons"><i></i><i></i><i></i></span></div>
               <div class="ed">
-                <div class="ed-head"><img src="assets/art/send-me-the-chorus-thumb.webp" alt=""><span><b>Send Me the Chorus</b><em>Orchid Relay</em></span></div>
-                <ul class="ed-lyrics">
-                  <li>The drop that lands like a confession</li>
-                  <li class="lit sung">Send me the chorus, just the good part</li>
-                  <li class="lit">Skip the intro, cut to the heart</li>
-                  <li class="lit">Send me the chorus, turn it up loud</li>
-                  <li>Ten seconds of us in a crowd</li>
+                <div class="ed-head"><img data-art="kanye" alt=""><span><b>Can't Tell Me Nothing</b><em>Kanye West</em></span></div>
+                <ul class="ed-lyrics" data-lyrics="kanye" data-start="0" data-length="10" data-count="5">
+                  <li class="lit sung">I ain't one of the Cosbys, I ain't go to Hillman</li>
                 </ul>
-                <div class="ed-clock"><span>0:32</span><b>10s snippet</b><span>0:42</span></div>
-                <canvas class="ed-wave" data-song="send-me-the-chorus" data-start="32.24" data-length="10"></canvas>
-                <div class="ed-overview"><i style="left:27.7%;width:8.6%"></i></div>
+                <div class="ed-clock"><span>0:45</span><b>10s snippet</b><span>0:55</span></div>
+                <canvas class="ed-wave" data-song="kanye" data-start="0" data-length="10"></canvas>
+                <div class="ed-overview"><i style="left:0%;width:33.4%"></i></div>
                 <div class="ed-lengths"><span>5s</span><span class="on">10s</span><span>15s</span></div>
                 <div class="ed-controls"><span class="ed-play"><svg viewBox="0 0 20 20"><path d="M6 4l11 6-11 6z" fill="currentColor"/></svg></span><span class="ed-send"><svg viewBox="0 0 20 20"><path d="M10 16V4M5 9l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Send</span></div>
               </div>
@@ -192,10 +192,10 @@
               <div class="msgs">
                 <header class="msgs-head"><span class="msgs-back">‹</span><span class="avatar av-2">J</span><span class="msgs-name">Jules ›</span></header>
                 <div class="thread">
-                  <div class="bubble in">you have to hear this</div>
-                  <div class="out-wrap"><div class="mif" data-song="send-me-the-chorus" data-start="32.24" data-length="10" data-static></div></div>
+                  <div class="bubble in">what's your favourite lyric ever</div>
+                  <div class="out-wrap"><div class="mif" data-song="kanye" data-static></div></div>
                   <p class="delivered">Delivered</p>
-                  <div class="bubble in">ok this is my whole personality now</div>
+                  <div class="bubble in">ok that's elite</div>
                   <div class="typing"><i></i><i></i><i></i></div>
                 </div>
                 <footer class="compose"><span class="compose-plus">+</span><span class="compose-field">iMessage</span></footer>
@@ -219,27 +219,31 @@
 
     <div class="demo reveal" id="demo">
       <div class="demo-editor">
-        <div class="backdrop"><img id="demo-backdrop" src="assets/art/send-me-the-chorus.webp" alt=""></div>
+        <div class="backdrop"><img id="demo-backdrop" alt=""></div>
         <div class="demo-inner">
           <div class="demo-songs" role="radiogroup" aria-label="Song" id="demo-songs"></div>
 
           <div class="demo-head">
-            <img id="demo-art" src="assets/art/send-me-the-chorus.webp" alt="">
-            <div>
-              <p class="demo-title" id="demo-title">Send Me the Chorus</p>
-              <p class="demo-artist" id="demo-artist">Orchid Relay</p>
+            <img id="demo-art" alt="">
+            <div class="demo-head-text">
+              <p class="demo-title" id="demo-title"></p>
+              <p class="demo-artist" id="demo-artist"></p>
+              <p class="demo-links">
+                <a id="demo-apple" href="#" target="_blank" rel="noopener">Apple Music ↗</a>
+                <a id="demo-spotify" href="#" target="_blank" rel="noopener">Spotify ↗</a>
+              </p>
             </div>
           </div>
 
           <ol class="demo-lyrics" id="demo-lyrics" aria-label="Lyrics. Choose a line to start the snippet there."></ol>
 
           <div class="demo-timeline">
-            <div class="demo-clock"><span id="demo-from">0:32</span><b id="demo-len">10s snippet</b><span id="demo-to">0:42</span></div>
-            <div class="demo-scrub" id="demo-scrub" tabindex="0" role="slider" aria-label="Snippet start" aria-valuemin="0" aria-valuemax="100" aria-valuenow="32" aria-valuetext="0:32">
+            <div class="demo-clock"><span id="demo-from">0:00</span><b id="demo-len">10s snippet</b><span id="demo-to">0:10</span></div>
+            <div class="demo-scrub" id="demo-scrub" tabindex="0" role="slider" aria-label="Snippet start" aria-valuemin="0" aria-valuemax="20" aria-valuenow="0" aria-valuetext="0:00">
               <canvas id="demo-canvas"></canvas>
             </div>
             <div class="demo-overview"><i id="demo-overview"></i></div>
-            <p class="demo-caption">Drag the waveform or tap a lyric to pick the moment</p>
+            <p class="demo-caption">Drag the waveform or tap a lyric to pick the moment · from Apple Music’s preview</p>
           </div>
 
           <div class="demo-controls">
@@ -256,7 +260,7 @@
               </button>
               <button class="sendbtn" id="demo-send" type="button">
                 <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 16V4M5 9l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Send
+                <span id="demo-send-label">Send</span>
               </button>
             </div>
           </div>
@@ -272,7 +276,7 @@
               <header class="msgs-head"><span class="msgs-back" aria-hidden="true">‹</span><span class="avatar av-3" aria-hidden="true">A</span><span class="msgs-name">Alex ›</span></header>
               <div class="thread" id="demo-thread" aria-live="polite">
                 <p class="stamp">Today 9:41</p>
-                <div class="bubble in">send me the good part 👀</div>
+                <div class="bubble in">send me your favourite line 👀</div>
               </div>
               <footer class="compose" aria-hidden="true"><span class="compose-plus">+</span><span class="compose-field">iMessage</span></footer>
             </div>
@@ -280,6 +284,7 @@
         </div>
       </div>
     </div>
+    <p class="demo-credit">Previews stream from Apple Music. Synced lyrics from LRCLIB.</p>
   </div>
 </section>
 
@@ -297,14 +302,7 @@
           <h3>Lyrics that pick<br>the moment.</h3>
           <p>Every line is synced to the song. Tap one and your snippet starts right there, a quarter second early, so the first word never gets clipped.</p>
         </div>
-        <ul class="lyric-roll" aria-hidden="true">
-          <li>Midnight rolls in over the harbor</li>
-          <li>Headlights spill like paint on the tide</li>
-          <li class="lit">Neon harbor, hold this moment</li>
-          <li class="lit sung">Every signal pulling me home</li>
-          <li class="lit">Neon harbor, burn a little brighter</li>
-          <li>I was never out here alone</li>
-        </ul>
+        <ul class="lyric-roll" data-lyrics="queen" data-start="4" data-length="10" data-count="4" aria-hidden="true"></ul>
       </article>
 
       <article class="tile t-lengths reveal">
@@ -315,19 +313,10 @@
 
       <article class="tile t-wave reveal">
         <div class="tile-copy">
-          <h3>See the whole song at once.</h3>
-          <p>The waveform is ready before the audio is. Drag it with real momentum, and find the drop by sight.</p>
+          <h3>See the moment before you hear it.</h3>
+          <p>The waveform draws the instant a song opens. Drag it with real momentum and find the drop by sight.</p>
         </div>
-        <canvas class="full-wave" data-song="neon-harbor" aria-hidden="true"></canvas>
-      </article>
-
-      <article class="tile t-sources reveal">
-        <h3 class="tile-kicker">Three places to find a song</h3>
-        <ul class="sources">
-          <li><span class="src-dot s1"></span><b>MIFS Library</b><em>Full songs, artwork and synced lyrics</em></li>
-          <li><span class="src-dot s2"></span><b>Apple Music</b><em>Search and charts, clipped from previews</em></li>
-          <li><span class="src-dot s3"></span><b>Your own audio</b><em>Files and DRM-free songs you own</em></li>
-        </ul>
+        <canvas class="full-wave" data-song="celine" aria-hidden="true"></canvas>
       </article>
 
       <article class="tile t-anywhere reveal">
@@ -340,8 +329,8 @@
         <div class="lock" aria-hidden="true">
           <svg viewBox="0 0 48 48"><rect x="10" y="21" width="28" height="21" rx="5" fill="url(#lg)"/><path d="M16 21v-5a8 8 0 0116 0v5" fill="none" stroke="url(#lg)" stroke-width="4"/><defs><linearGradient id="lg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#8b6bff"/><stop offset="1" stop-color="#ff4f99"/></linearGradient></defs></svg>
         </div>
-        <h3>Your audio stays yours.</h3>
-        <p>Clips of songs you own never touch a MIFS server. Apple Music previews stream straight from Apple and are never re-hosted.</p>
+        <h3>Straight from the source.</h3>
+        <p>Snippets play from Apple Music’s own preview stream. A snippet points to a moment in a song. It isn’t a copy of it.</p>
       </article>
 
       <article class="tile t-snippets reveal">
@@ -350,34 +339,34 @@
           <p>The Snippets tab keeps everything you’ve made, so the perfect ten seconds are always one tap from being sent again.</p>
         </div>
         <div class="mini-mifs" aria-hidden="true">
-          <div class="mini" data-mini="paper-satellites"></div>
-          <div class="mini" data-mini="neon-harbor"></div>
-          <div class="mini" data-mini="send-me-the-chorus"></div>
+          <div class="mini" data-mini="queen"></div>
+          <div class="mini" data-mini="celine"></div>
+          <div class="mini" data-mini="kanye"></div>
         </div>
       </article>
     </div>
   </div>
 </section>
 
-<!-- ───────────── Songs on demand ───────────── -->
+<!-- ───────────── Every song ───────────── -->
 <section class="demand" id="demand">
   <div class="container wide demand-grid">
     <div class="demand-copy reveal">
-      <p class="eyebrow">Songs on demand</p>
+      <p class="eyebrow">Every song</p>
       <h2 class="h-lg">If it’s out there,<br><span class="grad">it’s in here.</span></h2>
-      <p class="copy"><strong>Search reaches far beyond the library.</strong> Results from Spotify and Deezer sit right beside MIFS’s own songs. Pick one MIFS doesn’t have yet and it’s added on the spot: transcoded, measured, illustrated and synced to its lyrics, usually in seconds.</p>
+      <p class="copy"><strong>Search reaches across Spotify and Apple Music.</strong> Pick any song and it’s ready to clip in seconds, with its artwork, its waveform, and lyrics that follow along.</p>
     </div>
     <div class="demand-card reveal" id="demand-card" aria-hidden="true">
-      <div class="dc-search"><svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>paper satellites</span></div>
-      <p class="dc-section">Full Songs</p>
+      <div class="dc-search"><svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>bohemian rhapsody</span></div>
+      <p class="dc-section">Songs</p>
       <div class="dc-row" id="dc-row">
-        <img src="assets/art/paper-satellites-thumb.webp" alt="">
-        <span class="dc-meta"><b>Paper Satellites</b><em>Juniper Fold · Deezer</em></span>
-        <span class="dc-status"><i class="st-add">+</i><i class="st-adding"><span class="spin"></span>Adding…</i><i class="st-ready">✓</i></span>
+        <img data-art="queen" alt="">
+        <span class="dc-meta"><b>Bohemian Rhapsody</b><em>Queen · Apple Music</em></span>
+        <span class="dc-status"><i class="st-add">+</i><i class="st-adding"><span class="spin"></span>Loading…</i><i class="st-ready">✓</i></span>
       </div>
       <ol class="pipeline">
-        <li>Find audio</li>
-        <li>AAC 256 kbps</li>
+        <li>Find the song</li>
+        <li>Stream the preview</li>
         <li>Waveform</li>
         <li>Artwork</li>
         <li>Synced lyrics</li>
@@ -386,57 +375,15 @@
   </div>
 </section>
 
-<!-- ───────────── Telegram ───────────── -->
-<section class="telegram" id="telegram">
-  <div class="tg-glow" aria-hidden="true"></div>
-  <div class="container wide tg-grid">
-    <div class="tg-copy reveal">
-      <p class="eyebrow tg">Also on Telegram</p>
-      <h2 class="h-lg">Every chat.<br>Every platform.</h2>
-      <p class="copy"><strong>MIFS lives inside Telegram as a Mini App.</strong> Your snippet arrives as a card with a <b>Play Snippet</b> button, and it plays right in the chat on iPhone, Android, Mac, Windows, or the web. Nobody needs to install anything to hear it.</p>
-      <p class="copy"><strong>Reply with a Snippet</strong> opens the same song browser and editor. Or type <code>@MIFSAppBot</code> in any chat to make one without leaving the conversation.</p>
-      <a class="pill pill-tg" href="https://t.me/MIFSAppBot" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 4.3L18.3 19.6c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.1-8.2c.4-.4-.1-.6-.6-.2L5.8 13.3 1 11.8c-1-.3-1-1 .2-1.5L20.2 3c.9-.3 1.6.2 1.3 1.3z" fill="currentColor"/></svg>
-        Open @MIFSAppBot
-      </a>
-    </div>
-    <div class="tg-chat reveal" aria-label="A MIFS card in a Telegram chat">
-      <div class="tg-bar"><span class="tg-av">M</span><span><b>MIFS</b><em>bot</em></span></div>
-      <div class="tg-body">
-        <div class="tg-msg">
-          <div class="tg-card mif-card-only" data-card="neon-harbor"></div>
-          <p class="tg-cap"><b>Neon Harbor</b> · Orchid Relay<br><span>0:38 – 0:48 · 10s snippet</span><time>9:41</time></p>
-        </div>
-        <button class="tg-btn" type="button" data-song="neon-harbor" data-start="38.1" data-length="10">
-          <span class="tg-btn-label">▶︎ Play Snippet</span>
-        </button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ───────────── House band ───────────── -->
+<!-- ───────────── Now playing ───────────── -->
 <section class="band" id="band">
   <div class="container wide">
     <header class="section-head reveal">
-      <p class="eyebrow">The house band</p>
-      <h2 class="h-lg">Every note, drawn in code.</h2>
-      <p class="copy center"><strong>MIFS ships with three original songs</strong> to try it with. The chords, melodies, drums, vocals, lyrics and artwork were all generated from scratch, then released into the public domain. Tap a cover to hear its chorus.</p>
+      <p class="eyebrow">Now playing</p>
+      <h2 class="h-lg">Three songs worth quoting.</h2>
+      <p class="copy center"><strong>Start with a classic.</strong> Tap a cover to hear its moment, then make your own in the editor above.</p>
     </header>
-    <div class="albums">
-      <button class="album reveal" type="button" data-song="neon-harbor" data-start="38.1" data-length="10">
-        <span class="album-art"><img src="assets/art/neon-harbor.webp" alt="" loading="lazy"><span class="album-play" aria-hidden="true"></span><span class="album-bar"><i></i></span></span>
-        <span class="album-meta"><b>Neon Harbor</b><em>Orchid Relay</em><small>Synthwave · 100 BPM · 2:07</small></span>
-      </button>
-      <button class="album reveal" type="button" data-song="send-me-the-chorus" data-start="32.24" data-length="10">
-        <span class="album-art"><img src="assets/art/send-me-the-chorus.webp" alt="" loading="lazy"><span class="album-play" aria-hidden="true"></span><span class="album-bar"><i></i></span></span>
-        <span class="album-meta"><b>Send Me the Chorus</b><em>Orchid Relay</em><small>Dance Pop · 118 BPM · 1:56</small></span>
-      </button>
-      <button class="album reveal" type="button" data-song="paper-satellites" data-start="45.41" data-length="10">
-        <span class="album-art"><img src="assets/art/paper-satellites.webp" alt="" loading="lazy"><span class="album-play" aria-hidden="true"></span><span class="album-bar"><i></i></span></span>
-        <span class="album-meta"><b>Paper Satellites</b><em>Juniper Fold</em><small>Lo-fi Hip Hop · 84 BPM · 2:20</small></span>
-      </button>
-    </div>
+    <div class="albums" id="albums"></div>
   </div>
 </section>
 
@@ -464,14 +411,73 @@
   <div class="container">
     <h2 class="h-md specs-title reveal">Tech Specs</h2>
     <dl class="spec-list">
-      <div class="spec reveal"><dt>Works with</dt><dd><ul><li>iPhone and iPad with iOS 18 or later</li><li>Messages, as an iMessage app</li><li>Telegram, as a Mini App on every platform</li><li>Any web browser, through mif share links</li></ul></dd></div>
-      <div class="spec reveal"><dt>Snippets</dt><dd><ul><li>5, 10 or 15 seconds</li><li>From anywhere in a full song</li><li>Chosen by waveform or by lyric line</li><li>Previewed before sending</li></ul></dd></div>
-      <div class="spec reveal"><dt>Song sources</dt><dd><ul><li>MIFS Library: full songs with synced lyrics</li><li>Songs on demand, discovered through Spotify and Deezer</li><li>Apple Music: search and charts, from 30-second previews</li><li>Your own files and DRM-free library songs</li></ul></dd></div>
-      <div class="spec reveal"><dt>Lyrics</dt><dd><ul><li>Line-synced, with an explicit end for every line</li><li>Fetched automatically from LRCLIB for new songs</li><li>Searchable, so a remembered line finds the song</li></ul></dd></div>
-      <div class="spec reveal"><dt>Sharing</dt><dd><ul><li>Interactive iMessage bubble with artwork and waveform</li><li>Telegram card with a Play Snippet button</li><li>Clips of your own audio sent as native audio messages</li><li>A share link for every mif, with rich previews</li></ul></dd></div>
+      <div class="spec reveal"><dt>Works with</dt><dd><ul><li>iPhone and iPad with iOS 18 or later</li><li>Messages, as an iMessage app</li><li>Any web browser, through mif share links</li></ul></dd></div>
+      <div class="spec reveal"><dt>Snippets</dt><dd><ul><li>5, 10 or 15 seconds</li><li>Chosen by waveform or by lyric line</li><li>Previewed before sending</li></ul></dd></div>
+      <div class="spec reveal"><dt>Songs</dt><dd><ul><li>Search across Spotify and Apple Music</li><li>Audio streamed from Apple Music previews</li><li>Artwork and song details from Apple Music</li></ul></dd></div>
+      <div class="spec reveal"><dt>Lyrics</dt><dd><ul><li>Line-synced, with an explicit end for every line</li><li>Fetched automatically from LRCLIB</li><li>Lit up line by line as the snippet plays</li></ul></dd></div>
+      <div class="spec reveal"><dt>Sharing</dt><dd><ul><li>Interactive iMessage bubble with artwork and waveform</li><li>A share link for every mif, with rich previews</li></ul></dd></div>
       <div class="spec reveal"><dt>Server</dt><dd><ul><li>Go, SQLite with FTS5, and ffmpeg</li><li>AAC 256 kbps with fast start and range requests</li><li>Content-addressed media, ready for object storage and a CDN</li></ul></dd></div>
-      <div class="spec reveal"><dt>Privacy</dt><dd><ul><li>Clips of audio you own never reach MIFS servers</li><li>Apple Music previews are never re-hosted</li><li>Telegram snippets are encoded in the link, so nothing is stored</li></ul></dd></div>
+      <div class="spec reveal"><dt>Privacy</dt><dd><ul><li>A snippet points to a moment in a song, not a copy of it</li><li>Apple Music previews are never re-hosted</li></ul></dd></div>
     </dl>
+  </div>
+</section>
+
+<!-- ───────────── Updates ───────────── -->
+<section class="updates light" id="updates">
+  <div class="container">
+    <header class="section-head reveal">
+      <p class="eyebrow dark">Updates</p>
+      <h2 class="h-lg">What’s new in MIFS.</h2>
+      <p class="copy center"><strong>Release notes for the app and this site,</strong> newest first.</p>
+    </header>
+    <ol class="timeline">
+      <li class="update reveal">
+        <div class="update-meta">
+          <time datetime="2026-09-13">September 13, 2026</time>
+          <span class="tags"><span class="tag latest">Latest</span><span class="tag">Web</span></span>
+        </div>
+        <div class="update-body">
+          <h3>MIFS, right in your browser.</h3>
+          <p>This site now has a working MIFS editor. Pick a song, tap a lyric, choose a length, and send the moment to a chat without installing anything.</p>
+          <ul>
+            <li>Three songs to start with, from Kanye West, Céline Dion and Queen</li>
+            <li>Previews stream straight from Apple Music, with synced lyrics from LRCLIB</li>
+            <li>A new look, with the new MIFS icon</li>
+          </ul>
+          <a class="link-arrow" href="#try">Try it now</a>
+        </div>
+      </li>
+      <li class="update reveal">
+        <div class="update-meta">
+          <time datetime="2026-09-13">September 13, 2026</time>
+          <span class="tags"><span class="tag">iPhone</span><span class="tag">iMessage</span></span>
+        </div>
+        <div class="update-body">
+          <h3>Synced lyrics.</h3>
+          <p>Lyrics now sit beside the timeline. Tap a line and the snippet moves right to it.</p>
+          <ul>
+            <li>Snippets carry their lyrics, so each line lights up as it plays for the person you sent it to</li>
+            <li>Waveforms draw instantly, before the audio has loaded</li>
+            <li>Songs stream as you scrub instead of downloading first</li>
+          </ul>
+        </div>
+      </li>
+      <li class="update reveal">
+        <div class="update-meta">
+          <time datetime="2026-09-12">September 12, 2026</time>
+          <span class="tags"><span class="tag">iPhone</span><span class="tag">iMessage</span></span>
+        </div>
+        <div class="update-body">
+          <h3>MIFS for iMessage.</h3>
+          <p>The first version. Pick any 5 to 15 seconds of a song and send it as a Messages bubble that plays with a tap.</p>
+          <ul>
+            <li>Apple Music search and charts, with no subscription needed</li>
+            <li>A waveform editor, with a preview before you send</li>
+            <li>Interactive bubbles with the artwork, the waveform and a play button</li>
+          </ul>
+        </div>
+      </li>
+    </ol>
   </div>
 </section>
 
@@ -481,8 +487,8 @@
     <img class="cta-icon reveal" src="assets/icon-512.png" alt="MIFS app icon" width="128" height="128">
     <h2 class="display-sm reveal">Say it with<br><span class="grad">a song.</span></h2>
     <div class="hero-ctas reveal">
-      <a class="pill" href="https://t.me/MIFSAppBot" target="_blank" rel="noopener">Try it in Telegram</a>
-      <a class="link-arrow" href="#try">Make a snippet here</a>
+      <a class="pill" href="#try">Make a snippet</a>
+      <a class="link-arrow" href="#updates">See what’s new</a>
     </div>
   </div>
 </section>
@@ -492,13 +498,12 @@
 <footer class="footer">
   <div class="container wide">
     <ol class="footnotes">
-      <li>The demo songs, by the fictional artists Orchid Relay and Juniper Fold, were composed, performed and illustrated entirely in code for MIFS. Their audio, lyrics and artwork are dedicated to the public domain under CC0 1.0.</li>
-      <li>Songs on demand need an audio source configured on the MIFS server. Only use audio you have the rights to store and share.</li>
-      <li>Apple, Apple Music, iPhone, iPad and iMessage are trademarks of Apple Inc. Telegram, Spotify and Deezer are trademarks of their respective owners. MIFS is not affiliated with any of them.</li>
+      <li>Song previews, artwork and song details are provided by Apple Music and stream directly from Apple. Synced lyrics are provided by LRCLIB. Songs belong to their artists and rights holders, and their appearance here doesn’t imply endorsement.</li>
+      <li>Apple, Apple Music, iPhone, iPad and iMessage are trademarks of Apple Inc. Spotify is a trademark of Spotify AB. MIFS is not affiliated with either of them.</li>
     </ol>
     <div class="footer-bottom">
       <span class="footer-brand"><img src="assets/icon-512.png" alt="" width="16" height="16"> MIFS</span>
-      <span>Send the good part.</span>
+      <span>Share the feeling.</span>
     </div>
   </div>
 </footer>
