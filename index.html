@@ -372,52 +372,8 @@
   </div>
 </section>
 
-<!-- ───────────── Now playing ───────────── -->
-<section class="band" id="band">
-  <div class="container wide">
-    <header class="section-head reveal">
-      <p class="eyebrow">Now playing</p>
-      <h2 class="h-lg">Three songs worth quoting.</h2>
-      <p class="copy center"><strong>Start with a classic.</strong> Tap a cover to hear its moment, then make your own in the editor above.</p>
-    </header>
-    <div class="albums" id="albums"></div>
-  </div>
-</section>
 
-<!-- ───────────── Under the hood ───────────── -->
-<section class="hood light" id="hood">
-  <div class="container wide">
-    <header class="section-head reveal">
-      <p class="eyebrow dark">Under the hood</p>
-      <h2 class="h-lg">A music server<br>built for moments.</h2>
-      <p class="copy center"><strong>Behind MIFS is a small, fast Go service</strong> that stores full songs, precomputes their waveforms, serves synced lyrics, and turns any moment into a clip that plays on any device.</p>
-    </header>
-    <div class="stats">
-      <article class="stat reveal"><p class="stat-num grad">1</p><h3>static binary</h3><p>Pure-Go SQLite with no cgo and no runtime dependencies. It cross-compiles for any Linux host.</p></article>
-      <article class="stat reveal"><p class="stat-num grad">256<small>kbps</small></p><h3>AAC, streamed</h3><p>The index sits at the front of every file, so playback seeks straight to your moment with range requests. The app never downloads a whole song to preview ten seconds.</p></article>
-      <article class="stat reveal"><p class="stat-num grad">10<small>/s</small></p><h3>waveform points</h3><p>Computed once at import, with the same analysis the app runs on the phone, so the editor draws the whole song immediately.</p></article>
-      <article class="stat reveal"><p class="stat-num grad">FTS5</p><h3>lyric search</h3><p>A ranked full-text index over titles, artists, albums and every lyric line. Remember a line, find the song.</p></article>
-      <article class="stat reveal"><p class="stat-num grad">SHA-256</p><h3>addressed media</h3><p>Audio and artwork are named by their hash and never change in place. They cache forever and move to any CDN untouched.</p></article>
-      <article class="stat reveal"><p class="stat-num grad">304</p><h3>cheap revalidation</h3><p>Weak ETags on every API response keep the app’s cache fresh with near-empty round trips, so new songs show up instantly.</p></article>
-    </div>
-  </div>
-</section>
 
-<!-- ───────────── Specs ───────────── -->
-<section class="specs light white" id="specs">
-  <div class="container">
-    <h2 class="h-md specs-title reveal">Tech Specs</h2>
-    <dl class="spec-list">
-      <div class="spec reveal"><dt>Works with</dt><dd><ul><li>iPhone and iPad with iOS 18 or later</li><li>Messages, as an iMessage app</li><li>Any web browser, through mif share links</li></ul></dd></div>
-      <div class="spec reveal"><dt>Snippets</dt><dd><ul><li>5, 10 or 15 seconds</li><li>Chosen by waveform or by lyric line</li><li>Previewed before sending</li></ul></dd></div>
-      <div class="spec reveal"><dt>Songs</dt><dd><ul><li>Search across Spotify and Apple Music</li><li>Audio streamed from Apple Music previews</li><li>Artwork and song details from Apple Music</li></ul></dd></div>
-      <div class="spec reveal"><dt>Lyrics</dt><dd><ul><li>Line-synced, with an explicit end for every line</li><li>Fetched automatically from LRCLIB</li><li>Lit up line by line as the snippet plays</li></ul></dd></div>
-      <div class="spec reveal"><dt>Sharing</dt><dd><ul><li>Interactive iMessage bubble with artwork and waveform</li><li>A share link for every mif, with rich previews</li></ul></dd></div>
-      <div class="spec reveal"><dt>Server</dt><dd><ul><li>Go, SQLite with FTS5, and ffmpeg</li><li>AAC 256 kbps with fast start and range requests</li><li>Content-addressed media, ready for object storage and a CDN</li></ul></dd></div>
-      <div class="spec reveal"><dt>Privacy</dt><dd><ul><li>A snippet points to a moment in a song, not a copy of it</li><li>Apple Music previews are never re-hosted</li></ul></dd></div>
-    </dl>
-  </div>
-</section>
 
 <!-- ───────────── Updates ───────────── -->
 <section class="updates light" id="updates">
